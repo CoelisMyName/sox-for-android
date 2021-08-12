@@ -1,0 +1,173 @@
+                           SoX Installation
+                           ----------------
+
+SoX should compile and run on any POSIX compatible system (Linux, BSD,
+Solaris, Xcode on Mac OS X, Cygwin on MS-Windows, etc.).  For other
+compilers/systems, it is often possible to manually construct a custom
+`soxconfig.h' and `Makefile' for that system (the minimum requirements
+are 32-bit CPU, 64-bit FPU, C89 compiler).
+
+Note that the `play', `rec', and `soxi' programs are in fact just
+copies-of or links-to (depending on OS) `sox'.
+
+SoX optionally makes use of some external libraries to obtain support
+for additional file formats and/or effects.  Optional libraries should
+be installed before compiling SoX.  The current list of supported
+libraries, where to get them (if not from your OS distribution), and
+their licence types, is as follows:
+
+OpencoreAMR-NB/WB http://sourceforge.net/projects/opencore-amr  Apache
+VisualOn AMR-WB   http://sourceforge.net/projects/opencore-amr  Apache
+AO                http://xiph.org/ao                    GPL
+FLAC              http://flac.sourceforge.net           BSD
+LADSPA            http://www.ladspa.org                 LGPL + plugins' licence
+Lame MP3 encoder  http://lame.sourceforge.net           LGPL
+Twolame MP2 enc.  http://www.twolame.org                LGPL
+libltdl           http://www.gnu.org/software/libtool   LGPL
+MAD MP3 decoder   http://www.underbit.com/products/mad  GPL
+MP3 ID3 tags      http://www.underbit.com/products/mad  GPL
+Magic             http://www.darwinsys.com/file         BSD
+Ogg Vorbis        http://www.vorbis.com                 BSD
+Opus              http://www.opus-codec.org/            BSD
+PNG               http://www.libpng.org/pub/png         zlib (BSD-like)
+Sndfile           http://www.mega-nerd.com/libsndfile   LGPL
+WavPack           http://www.wavpack.com                BSD
+
+
+
+Compiling and installing on a POSIX system
+------------------------------------------
+
+First install any optional libraries that you need for SoX.  Some
+libraries may require pkg-config to be installed to be properly
+detected by SoX.
+
+[Only if you're compiling the git sources, first make sure you have
+the GNU autotools (automake >= 1.9, autoconf >= 2.62, autoconf-archive)
+installed, then run
+
+	autoreconf -i
+]
+
+To compile and install SoX (executables, libraries, manual pages) with
+a default configuration for your platform, run the following commands:
+
+	./configure
+	make
+	make install
+
+There should be no errors and few, if any, warnings during the `make'
+stage.  Any warnings about pointer mismatch or conversion should
+be treated with deep suspicion.
+
+The `make install' command may require `root' priviliges.
+
+To run a selection of tests on the installed sox executable:
+
+	make installcheck
+
+Optionally, HTML & PDF versions of the manual pages can be built and
+installed as follows:
+
+	make html
+	make install-html
+	make pdf
+	make install-pdf
+
+Again, `root' priviliges may be needed at the install stages.
+
+
+
+Custom build options
+--------------------
+
+Selection of optional libraries and of other build options can be made
+by adding parameters to the `./configure' command line (above).  Run
+
+	./configure --help
+
+for a complete list of options.
+
+Each optional file-format may be configured to be loaded statically
+(the default) or dynamically.  The dynamic option may be useful for
+distribution packaging reasons -- for example, to keep separate `free'
+and `non-free' software.
+
+If you are building SoX for a `distribution' (i.e. the build will be
+used by others), please use --with-distro to identify the distribution
+as this information is useful in helping to diagnose SoX bug reports.
+For example,
+
+	./configure --with-distro='Super Linux OS 6.1'
+
+If any libraries are installed in a non-standard locations in your
+system, the compiler and linker must be informed of this.  Often,
+environment variables can be used for this purpose.  For example, if
+using the GNU or Clang/LLVM toolchains, the following might be used in
+a Bourne-compatible shell:
+
+export CPATH=/usr/local/include
+export LIBRARY_PATH=/usr/local/lib
+
+For other compilers and shells, consult their respective manuals.
+
+Optional features
+-----------------
+
+Support for some file formats is optional and controlled by --enable-*
+flags to configure.  If the value "dyn" is passed to these flags,
+e.g. --enable-flac=dyn, the corresponding code is built as a module
+and loaded at runtime.
+
+Use of external libraries is controlled by --with-* flags.  Some of
+these accept the value "dyn" to enable runtime loading of the library.
+
+The runtime loading feature is mainly useful for distributing the
+"sox" executable to systems that may not have all the external
+libraries installed.
+
+For a complete list of optional formats and libraries, including which
+support runtime loading, refer to the "configure --help" output.
+
+Testing
+-------
+
+N.B.: If SoX is configured and compiled to load some file-formats
+dynamically, then it will not be able to load them when running SoX
+executables from within the source file directory until after SoX has
+been installed (temporarily configuring with --without-libltdl removes
+this restriction).
+
+After successfully compiling SoX, try translating a sound file.  You
+should also playback the new file to make sure it sounds like the
+original.  You can either use an external program or SoX itself
+if compiled with playback support.
+
+To work with widest range of playback programs, you should chose a
+format that is native to your OS; such as .wav for Windows or .aiff for
+MacOS.  In the following example, we'll use .xxx as the extension of
+your preferred format.
+
+        cd src
+	./sox monkey.wav monkey.xxx
+
+You may have to give the sample format and rate for the file. For example,
+this command will make a sound file with a data rate of 12,500 samples
+per second and the data formatted as 16-bit signed integers:
+
+	./sox monkey.wav -r 12500 -b 16 -e signed-integer monkey.xxx
+
+If playback support was compiled in then it can be played like this:
+
+        ./play monkey.xxx
+
+or, equivalently:
+
+        ./sox monkey.xxx -d
+
+If monkey.xxx plays properly (it's a very short monkey screech),
+congratulations! SoX works.
+
+If you're adding new features to SoX or want to perform advance tests
+on a new platform then you can use the scripts "tests.sh" and
+"testall.sh" to stress SoX.

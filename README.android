@@ -1,0 +1,24 @@
+Required: 
+  autoconf automake autoconf-archive make perl libtool gcc
+
+Windows: 
+  you need install msys2 first https://www.msys2.org/. then make sure you install mingw toolchain on msys2.
+  run follow command
+$ pacman -S autoconf automake autoconf-archive make perl libtool gcc
+  then run follow command on msys2 with mingw environment
+$ autoupdate
+$ autoreconf -i
+  run 
+$ ./configure 
+  and
+$ make -j 8 && make install
+
+Android:
+  make sure you have autoconf automake autoconf-archive make perl libtool
+  if build on windows, go check windows guide
+  edit Android-Build.sh
+  run follow command
+$ autoreconf -i
+  then run follow command
+$ ./Android-Build.sh
+  if error occured, delete line '#error FIX NEEDED HERE' in file /src/formats.c
